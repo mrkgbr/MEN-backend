@@ -203,3 +203,28 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // 4) Log user in, send JWT
   createAndSendToken(user, 200, res);
 });
+
+// Only for rendered pages, no errors!
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  //* 1) Getting token and check if it's there
+  if (req.cookies.jwt) {
+    //* 1) Verification token, verify() throw an error if token does not match
+    console.log('CHECKING jwt');
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET,
+    );
+    //* 2) Check is user still exist
+    console.log('CHECKING user');
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) return next();
+    //* 3) Check if user changed password after the JWT was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) return next();
+
+    //* THERE IS A LOGGED IN USER
+    console.log('SENDING user');
+    res.locals.user = currentUser;
+    return next();
+  }
+  next();
+});
