@@ -57,6 +57,8 @@ app.use(
     limit: '10kb',
   }),
 );
+// Use this middleware to get data from html form
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
