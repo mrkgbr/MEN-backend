@@ -23,7 +23,7 @@ mongoose.connect(DB).then(() => {
   console.log('DB connection successful!');
 });
 
-mongoose.set('debug', true);
+// mongoose.set('debug', true);
 
 // START SERVER
 const port = process.env.PORT || 3000;
