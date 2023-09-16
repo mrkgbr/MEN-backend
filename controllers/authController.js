@@ -93,8 +93,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   //* 2) Verification token, verify() throw an error if token does not match
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   //* 3) Check is user still exist
-  const freshUser = await User.findById(decoded.id);
-  if (!freshUser)
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser)
     return next(
       new AppError(
         'The user belonging to this token does no longer exist.',
@@ -102,13 +102,14 @@ exports.protect = catchAsync(async (req, res, next) => {
       ),
     );
   //* 4) Check if user changed password after the JWT was issued
-  if (freshUser.changedPasswordAfter(decoded.iat)) {
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError('User recently changed password! Please log in again!', 401),
     );
   }
   //* GRANT ACCESS TO PROTECTED ROUTE
-  req.user = freshUser;
+  req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
 
@@ -218,20 +219,17 @@ exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
     try {
       //* 1) Verification token, verify() throw an error if token does not match
-      console.log('CHECKING jwt');
       const decoded = await promisify(jwt.verify)(
         req.cookies.jwt,
         process.env.JWT_SECRET,
       );
       //* 2) Check is user still exist
-      console.log('CHECKING user');
       const currentUser = await User.findById(decoded.id);
       if (!currentUser) return next();
       //* 3) Check if user changed password after the JWT was issued
       if (currentUser.changedPasswordAfter(decoded.iat)) return next();
 
       //* THERE IS A LOGGED IN USER
-      console.log('SENDING user');
       res.locals.user = currentUser;
       return next();
     } catch (err) {
