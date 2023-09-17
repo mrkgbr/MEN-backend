@@ -23,5 +23,8 @@
         "peerDependencies": false
       }
     ]
+  },
+  "parserOptions": {
+    "sourceType": "module"
   }
 }
