@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const pug = require('pug');
 const htmlToText = require('html-to-text');
+// const { Resend } = require('resend');
 
 module.exports = class Email {
   constructor(user, url) {
@@ -12,8 +13,24 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      // Sendgrid
-      return 1;
+      // Resend API
+
+      // const resend = new Resend(process.env.EMAIL_API_KEY);
+
+      // resend.emails.send({
+      //   from: 'onboarding@resend.dev',
+      //   to: '@gmail.com',
+      //   subject: 'Hello World',
+      //   html: '<p>Congrats on sending your <strong>first email</strong>!</p>',
+      // });
+      return nodemailer.createTransport({
+        host: 'smtp.resend.com',
+        port: 465,
+        auth: {
+          user: 'resend',
+          pass: process.env.EMAIL_API_KEY,
+        },
+      });
     }
 
     return nodemailer.createTransport({
@@ -44,7 +61,7 @@ module.exports = class Email {
       to: this.to,
       subject,
       html,
-      text: htmlToText.fromString(html),
+      text: htmlToText.convert(html),
     };
 
     // 3) Create a transport and send email
@@ -52,6 +69,13 @@ module.exports = class Email {
   }
 
   async sendWelcome() {
-    await this.send('welcome', 'Welcome tot the Natours family');
+    await this.send('welcome', 'Welcome to the Natours family');
+  }
+
+  async sendPasswordReset() {
+    await this.send(
+      'passwordReset',
+      'Your password reset token (valid for only 10 minutes)',
+    );
   }
 };
