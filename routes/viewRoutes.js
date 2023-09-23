@@ -10,7 +10,7 @@ router.use(viewController.setCSP);
 
 router.get(
   '/',
-  bookingController.createBookingCheckout,
+  // bookingController.createBookingCheckout,
   authController.isLoggedIn,
   viewController.getOverview,
 );
