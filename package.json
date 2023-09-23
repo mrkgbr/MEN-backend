@@ -11,7 +11,7 @@
     "dev": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
-    "watch:js": "esbuild ./public/js/index.js --bundle --outfile=./public/js/bundle.js --watch",
+    "watch:js": "esbuild ./public/js/index.js --bundle --minify --outfile=./public/js/bundle.js --watch",
     "build:js": "esbuild ./public/js/index.js --bundle --minify --outfile=./public/js/bundle.js"
   },
   "keywords": [],
